@@ -40,6 +40,13 @@ jobs:
           curl --fail --location --silent --show-error \
             https://raw.githubusercontent.com/YanXuLang/yanbao/main/scripts/install.ps1 \
             --output public/yanbao/windows/index.html
+          index=registry/v1/yanxu-gui/index.json
+          archive="$RUNNER_TEMP/yanxu-gui-six-targets.tar.gz"
+          url="$(jq -er '.versions[] | select(.version == "1.0.0") | .url' "$index")"
+          checksum="$(jq -er '.versions[] | select(.version == "1.0.0") | .checksum' "$index")"
+          curl --fail --location --silent --show-error "$url" --output "$archive"
+          printf '%s  %s\n' "$checksum" "$archive" | sha256sum --check
+          cp -R registry public/packages
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
